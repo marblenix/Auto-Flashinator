@@ -13,7 +13,7 @@ To use:
 ⋅⋅* https://addons.mozilla.org/en-US/firefox/addon/flashlight-1/?src=api
 2. Restart firefox.
 ⋅⋅* This must be done to create the initial flashinator folder.
-3. Fully quite out of firefox. (⌘ - q, or Menu->Firefox->Quit)
+3. Fully quit out of firefox. (⌘ - q, or Menu->Firefox->Quit)
 4. Run flashinator from the command line.
 
 
@@ -25,7 +25,7 @@ To use:
 #  This script automatically downloads the latest Flash plug-in installer and  #
 #  installs only the plugin.                                                   #
 #                                                                              #
-#  There is no icon in the PrefPane, No launch daemon, no updator,             #
+#  There is no icon in the PrefPane, No launch daemon, no updater,             #
 #  no shovelware, only the Flash Player plugin inside firefox without putting  #
 #  any of Adobe's files anywhere else on your machine.                         #
 #  This script is capable of installing flash _without_ the admin password.    #
@@ -38,10 +38,10 @@ To use:
 #     to ensure that the proper folders have been created.                     #
 #                                                                              #
 #  Running this script implies that you agree to all applicable terms and      #
-#  conditions found on the Adobe website. I take no responsiblity for any      #
+#  conditions found on the Adobe website. I take no responsibility for any      #
 #  damage that may occur by running this script. I am in no way affiliated     #
 #  with Adobe or it's products or partners. No ownership of any of the         #
-#  afformentioned is implied.                                                  #
+#  aforementioned is implied.                                                  #
 #                                                                              #
 #  Distributed under GPLv2                                                     #
 #  http://www.gnu.org/licenses/gpl-2.0.html                                    #
