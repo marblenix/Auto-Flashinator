@@ -1,0 +1,112 @@
+#!/bin/bash
+
+################################################################################
+# Original script by:                                                          #
+# http://jacktourist.wordpress.com                                             #
+# Editied [and perfected] by Me - [cm :at: marblenix.com]                      #
+#                                                                              #
+#  This script automatically downloads the latest Flash plug-in installer and  #
+#  installs only the plugin.                                                   #
+#                                                                              #
+#  There is no icon in the PrefPane, No launch daemon, no updator,             #
+#  no shovelware, only the Flash Player plugin inside firefox without putting  #
+#  any of Adobe's files anywhere else on your machine.                         #
+#  This script is capable of installing flash _without_ the admin password.    #
+#                                                                              #
+#  This script assumes you have the following installed on your machine:       #
+#  1: Firefox, already run at least once to ensure a profile has been created. #
+#  2: The Firefox plugin Flashlight:                                           #
+#     https://addons.mozilla.org/en-US/firefox/addon/flashlight-1/             #
+#  3: After installing Flashlight, be sure to restart firefox at least once    #
+#     to ensure that the proper folders have been created.                     #
+#                                                                              #
+#  Running this script implies that you agree to all applicable terms and      #
+#  conditions found on the Adobe website. I take no responsiblity for any      #
+#  damage that may occur by running this script. I am in no way affiliated     #
+#  with Adobe or it's products or partners. No ownership of any of the         #
+#  afformentioned is implied.                                                  #
+#                                                                              #
+#  Distributed under GPLv2                                                     #
+#  http://www.gnu.org/licenses/gpl-2.0.html                                    #
+#                                                                              #
+#                                                                              #
+################################################################################
+
+if [[ "$EUID" == 0 ]]; then
+  echo "THIS SCRIPT MUST _NEVER_ BE RUN AS ROOT"
+  exit 1
+fi
+
+dl_folder="/tmp/$(basename "$0")" || exit 1
+flash_dl=$(curl -s 'http://www.adobe.com/products/flashplayer/distribution3.html' | grep dmg | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')
+
+mkdir -p "$dl_folder"
+cd "$dl_folder"
+
+if [ ! -f flash_install.dmg ]; then
+  echo "Installer not found. Proceeding to download..."
+  echo "$flash_dl"
+  curl -o flash_install.dmg -O "$flash_dl"
+  if [ $? -eq 0 ]; then
+    echo "Download successful!"
+  else
+    echo "Download failed... Exiting"
+    exit
+  fi
+else
+  echo "Installer found. Installing..."
+fi
+
+echo "Mounting installer DMG..."
+hdiutil attach flash_install.dmg -mountpoint /Volumes/Flash -nobrowse -noautoopen &> /dev/null
+echo "Copying resources..."
+cp "/Volumes/Flash/Install Adobe Flash Player.app/Contents/Resources/Adobe Flash Player.pkg" "$dl_folder"
+echo "Unmounting installer DMG..."
+hdiutil detach /Volumes/Flash &> /dev/null
+
+echo "Extracting blobs..."
+tar xzf "$dl_folder/Adobe Flash Player.pkg"
+tar xzf "$dl_folder/AdobeFlashPlayerComponent.pkg/Scripts"
+tar xzf "$dl_folder/AdobeFlashPlayerComponent.pkg/Payload"
+# The following is a magical script that runs a blob that I do not understand.
+# The only thing it appears to do is unzip the Flash Player.plugin.lzma file.
+./postinstall ./ ./ ./
+
+firefox_profile="$HOME/Library/Application Support/Firefox"
+profiles=($(cat "$firefox_profile/profiles.ini" | grep Path))
+# Expected format for $profiles: Path=Profiles/io1znthy.default
+counter=0
+for (( i = 0; i < ${#profiles[@]}; i++ )) do
+  profile_path="$(echo "${profiles[$i]}" | awk -F\= '{print $2}')"
+  # Expected format for $profile_path: Profiles/bolznthy.default
+  flashlight_archive_path="$firefox_profile/$profile_path/extensions/flashlight@stephennolan.com.au/archive"
+  flashlight_flash_plugin_path="$flashlight_archive_path/Flash"
+
+  if [ -d "$flashlight_archive_path" ]; then
+    echo "Found compatible flashlight archive path in: $flashlight_archive_path"
+    let 'counter = counter + 1'
+  else
+    continue
+  fi
+
+  if [ -d "$flashlight_flash_plugin_path" ]; then
+    echo "Removing old flash plugin."
+    # Originally this would move the flash pugin path to the .Trash file.
+    # But for some reason it introduced a bug where the latest version would
+    # not be installed. TODO: Change this line to remove the `rm` command
+    rm -Rf "$flashlight_flash_plugin_path"
+  fi
+
+  mkdir -p "$flashlight_flash_plugin_path"
+  cp -R "$dl_folder/Library/Internet Plug-Ins/Flash Player.plugin" "$flashlight_flash_plugin_path"
+  cp "$dl_folder/Library/Internet Plug-Ins/flashplayer.xpt" "$flashlight_flash_plugin_path"
+done
+
+echo
+if [[ $counter == 0 ]]; then
+  echo "Did not find flashinator plugin directory."
+  echo "Do you have the addon Flasinator installed?"
+  echo "Have you restarted firefox at least once after installing flashinator?"
+else
+  echo "This script finished successfully."
+fi
