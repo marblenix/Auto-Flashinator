@@ -15,6 +15,7 @@ To use:
 ⋅⋅* This must be done to create the initial flashinator folder.
 3. Fully quit out of firefox. (⌘ - q, or Menu->Firefox->Quit)
 4. Run flashinator from the command line.
+5. Select "Flash" from the flashinator addon icon.
 
 
 ################################################################################
