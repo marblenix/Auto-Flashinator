@@ -46,7 +46,7 @@ cd "$dl_folder"
 if [ ! -f flash_install.dmg ]; then
   echo "Installer not found. Proceeding to download..."
   echo "$flash_dl"
-  curl -o flash_install.dmg -O "$flash_dl"
+  curl -L "$flash_dl" -o flash_install.dmg
   if [ $? -eq 0 ]; then
     echo "Download successful!"
   else
