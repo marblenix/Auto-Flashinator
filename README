@@ -2,20 +2,20 @@ Auto-Flashinator
 ================
 
 Automatically download and install flash plugin for the Mozilla Firefox
-addon "Flashinator". Useful for those who do not want to run the Adobe
+addon "Flashlight". Useful for those who do not want to run the Adobe
 flash plugin install.
 
 Works on Mac OS running Firefox _only_.
 
 To use:
 
-1. Start firefox and download the addon "Flashinator"
+1. Start firefox and download the addon "Flashlight"
 ⋅⋅* https://addons.mozilla.org/en-US/firefox/addon/flashlight-1/?src=api
 2. Restart firefox.
-⋅⋅* This must be done to create the initial flashinator folder.
+⋅⋅* This must be done to create the initial flashlight folder.
 3. Fully quit out of firefox. (⌘ - q, or Menu->Firefox->Quit)
 4. Run flashinator from the command line.
-5. Select "Flash" from the flashinator addon icon.
+5. Select "Flash" from the flashlight addon icon.
 
 
 ################################################################################

@@ -6,7 +6,7 @@
 # Editied [and perfected] by Me - [cm :at: marblenix.com]                      #
 #                                                                              #
 #  This script automatically downloads the latest Flash plug-in installer and  #
-#  installs only the plugin.                                                   #
+#  installs only the plugin directly into firefox.                             #
 #                                                                              #
 #  There is no icon in the PrefPane, No launch daemon, no updator,             #
 #  no shovelware, only the Flash Player plugin inside firefox without putting  #
