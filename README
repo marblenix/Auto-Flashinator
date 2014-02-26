@@ -19,9 +19,8 @@ To use:
 
 
 ################################################################################
-# Original script by:                                                          #
-# http://jacktourist.wordpress.com                                             #
-# Editied by https://github.com/marblenix/                                     #
+# Original script by: http://jacktourist.wordpress.com                         #
+# Editied by:         https://github.com/marblenix/                                     #
 #                                                                              #
 #  This script automatically downloads the latest Flash plug-in installer and  #
 #  installs only the plugin.                                                   #
