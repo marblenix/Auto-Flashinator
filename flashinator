@@ -37,7 +37,7 @@ if [[ "$EUID" == 0 ]]; then
 fi
 
 dl_folder="/tmp/$(basename "$0")" || exit 1
-flash_dl=$(curl -s 'http://www.adobe.com/products/flashplayer/distribution3.html' | grep dmg | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')
+flash_dl=$(curl -sL 'http://www.adobe.com/products/flashplayer/distribution3.html' | grep dmg | head -n 1 | sed 's/.*"\(.*\)"[^"]*$/\1/')
 
 mkdir -p "$dl_folder"
 cd "$dl_folder"
