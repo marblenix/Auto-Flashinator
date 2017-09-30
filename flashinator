@@ -1,57 +1,52 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-################################################################################
-# Author:         https://github.com/marblenix/                                #
-#                                                                              #
-#  This script automatically downloads the latest Flash plug-in installer and  #
-#  installs only the plugin directly into firefox.                             #
-#                                                                              #
-#  There is no icon in the PrefPane, No launch daemon, no updator,             #
-#  no shovelware, only the Flash Player plugin inside firefox without putting  #
-#  any of Adobe's files anywhere else on your machine.                         #
-#  This script is capable of installing flash _without_ the admin password.    #
-#                                                                              #
-#  This script assumes you have the following installed on your machine:       #
-#  1: Firefox, already run at least once to ensure a profile has been created. #
-#  2: The Firefox plugin Flashlight:                                           #
-#     https://addons.mozilla.org/en-US/firefox/addon/flashlight-1/             #
-#  3: After installing Flashlight, be sure to restart firefox at least once    #
-#     to ensure that the proper folders have been created.                     #
-#                                                                              #
-#  Running this script implies that you agree to all applicable terms and      #
-#  conditions found on the Adobe website. I take no responsiblity for any      #
-#  damage that may occur by running this script. I am in no way affiliated     #
-#  with Adobe or it's products or partners. No ownership of any of the         #
-#  afformentioned is implied.                                                  #
-#                                                                              #
-#  Distributed under GPLv2                                                     #
-#  http://www.gnu.org/licenses/gpl-2.0.html                                    #
-#                                                                              #
-################################################################################
+# Author: https://github.com/marblenix/                                #
 
 if [[ "$EUID" == 0 ]]; then
     echo "THIS SCRIPT MUST _NEVER_ BE RUN AS ROOT"
     exit 1
 fi
 
+if [[ "$#" -lt 1 ]]; then
+    echo "Usage: $(basename "$0") /path/to/install_flash_player_osx.dmg"
+    exit 1
+fi
+
+tmp_folder="/tmp/$(basename "$0")_$$"
 firefox_profile="$HOME/Library/Application Support/Firefox"
-dl_folder="/tmp/$(basename "$0")" || exit 1
 installer_dmg="$1"
 
-mkdir -p "$dl_folder"
-cd "$dl_folder" || exit 100
+cleanup() {
+    # Only cleanup if the directory exists and begins with "/tmp/"
+    if test -d "$tmp_folder"; then
+        if [[ "$tmp_folder" = /tmp/* ]]; then
+            echo "Removing $tmp_folder"
+            rm -rf "$tmp_folder"
+        fi
+    fi
+}
+
+trap cleanup INT TERM EXIT
+
+if ! test -f "$installer_dmg"; then
+    echo "$installer_dmg is not a regular file."
+    exit 1
+fi
+
+mkdir -p "$tmp_folder"
+cd "$tmp_folder" || exit 100
 
 echo "Mounting installer DMG..."
 hdiutil attach "$installer_dmg" -mountpoint /Volumes/Flash -nobrowse -noautoopen &> /dev/null
 echo "Copying resources..."
-cp "/Volumes/Flash/Install Adobe Flash Player.app/Contents/Resources/Adobe Flash Player.pkg" "$dl_folder"
+cp "/Volumes/Flash/Install Adobe Flash Player.app/Contents/Resources/Adobe Flash Player.pkg" "$tmp_folder"
 echo "Unmounting installer DMG..."
 hdiutil detach /Volumes/Flash &> /dev/null
 
 echo "Extracting blobs..."
-tar xzf "$dl_folder/Adobe Flash Player.pkg"
-tar xzf "$dl_folder/AdobeFlashPlayerComponent.pkg/Scripts"
-tar xzf "$dl_folder/AdobeFlashPlayerComponent.pkg/Payload"
+tar xzf "$tmp_folder/Adobe Flash Player.pkg"
+tar xzf "$tmp_folder/AdobeFlashPlayerComponent.pkg/Scripts"
+tar xzf "$tmp_folder/AdobeFlashPlayerComponent.pkg/Payload"
 # The following is a magical script that runs a blob that I do not understand.
 # The only thing it appears to do is unzip the Flash Player.plugin.lzma file.
 ./postinstall ./ ./ ./
@@ -83,8 +78,8 @@ for (( i = 0; i < ${#profiles[@]}; i++ )) do
 
     mkdir -p "$flashlight_flash_plugin_path"
     echo "Installing flash plugin."
-    cp -R "$dl_folder/Library/Internet Plug-Ins/Flash Player.plugin" "$flashlight_flash_plugin_path"
-    cp "$dl_folder/Library/Internet Plug-Ins/flashplayer.xpt" "$flashlight_flash_plugin_path"
+    cp -R "$tmp_folder/Library/Internet Plug-Ins/Flash Player.plugin" "$flashlight_flash_plugin_path"
+    cp "$tmp_folder/Library/Internet Plug-Ins/flashplayer.xpt" "$flashlight_flash_plugin_path"
 done
 
 echo
